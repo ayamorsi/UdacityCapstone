@@ -8,7 +8,7 @@ Parameters:
         Type: String
         
 
-    PublicSubnet1CIDR:
+    PublicSubnetCIDR:
         Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
         Type: String
 
@@ -35,59 +35,8 @@ Resources:
                 - Key: Name 
                   Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
 
-    WebServerSecGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow http to our hosts and SSH from local only
-      VpcId:
-        Fn::ImportValue:
-          !Sub "${EnvironmentName}-VPCID"
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: 0.0.0.0/0
-      SecurityGroupEgress:
-      - IpProtocol: tcp
-        FromPort: 0
-        ToPort: 65535
-        CidrIp: 0.0.0.0/0
-
-        
-    WebAppLaunchConfig:
-    Type: AWS::AutoScaling::LaunchConfiguration
-    Properties:
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash
-          sudo apt-get update -y
-          sudo apt-get install git apt-transport-https ca-certificates curl gnupg-agent software-properties-common -y
-          git clone 
-
-          
-      ImageId: ami-005bdb005fb00e791
-      KeyName: test
-      SecurityGroups:
-      - Ref: WebServerSecGroup
-      InstanceType: t2.medium
-      BlockDeviceMappings:
-      - DeviceName: "/dev/sdk"
-        Ebs:
-          VolumeSize: '10'
-
-    WebAppGroup:
-      Type: AWS::AutoScaling::AutoScalingGroup
-      Properties:
-        VPCZoneIdentifier:
-          - !Ref PublicSubnet
-        LaunchConfigurationName:
-          Ref: WebAppLaunchConfig
-        MinSize: 1
-        MaxSize: 1
-        TargetGroupARNs:
-        - Ref: WebAppTargetGroup
     
- #vpc need internet
+    #vpc need internet
     InternetGateway:
         Type: AWS::EC2::InternetGateway
         Properties:
@@ -114,36 +63,109 @@ Resources:
         Type: AWS::EC2::Route
         DependsOn: InternetGatewayAttachment
         Properties: 
-            RouteTableId: !Ref PublicRouteTable-attach
+            RouteTableId: !Ref PublicRouteTable
             DestinationCidrBlock: 0.0.0.0/0
             GatewayId: !Ref InternetGateway
 
     PublicSubnetRouteTableAssociation:
         Type: AWS::EC2::SubnetRouteTableAssociation
-        Properties
-            RouteTableId: !Ref PublicRouteTable-attach
+        Properties:
+            RouteTableId: !Ref PublicRouteTable
             SubnetId: !Ref PublicSubnet
 
+    WebServerSecGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Allow http to our hosts and SSH from local only
+        VpcId: !Ref VPC
+        SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
 
-    TargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 300
-      HealthCheckPath: /
-      HealthCheckPort: 80
-      HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 15
-      HealthyThresholdCount: 2
-      Port: 80
-      Protocol: HTTP
-      UnhealthyThresholdCount: 10
-      VpcId: !Ref VPC
+        
+    WebAppLaunchConfig:
+      Type: AWS::AutoScaling::LaunchConfiguration
+      Properties:
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            sudo apt-get update -y
+            sudo apt-get install git apt-transport-https ca-certificates curl gnupg-agent software-properties-common -y
+            sudo curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 
+            sudo chmod +x minikube
+            sudo mkdir -p /usr/local/bin/
+            sudo install minikube /usr/local/bin/
+            sudo apt-get remove docker docker-engine docker.io containerd runc
+            sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" -y
+            sudo apt-get update -y
+            sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/` curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+            sudo chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/kubectl
+            sudo usermod -aG docker ubuntu && newgrp docker
+            minikube start
+            git clone https://github.com/ayamorsi/UdacityCapstone.git
+            kubectl apply -f project/k8/redis-deployment.yaml
+            kubectl apply -f project/k8/redis-service.yaml
+            kubectl apply -f project/k8/python-app-deployment.yaml
+            kubectl apply -f project/k8/python-app-service.yaml
+        ImageId: ami-005bdb005fb00e791
+        KeyName: test
+        SecurityGroups:
+        - Ref: WebServerSecGroup
+        InstanceType: t2.medium
+        BlockDeviceMappings:
+        - DeviceName: "/dev/sdk"
+          Ebs:
+            VolumeSize: '10'
+
+    WebAppGroup:
+      Type: AWS::AutoScaling::AutoScalingGroup
+      Properties:
+        VPCZoneIdentifier:
+          - !Ref PublicSubnet
+        LaunchConfigurationName:
+          Ref: WebAppLaunchConfig
+        MinSize: 1
+        MaxSize: 1
+        TargetGroupARNs:
+        - Ref: WebAppTargetGroup
     
-outputs:
- VPC:
+    WebAppTargetGroup:
+      Type: AWS::ElasticLoadBalancingV2::TargetGroup
+      Properties:
+        HealthCheckEnabled: true
+        HealthCheckIntervalSeconds: 300
+        HealthCheckPath: /
+        HealthCheckPort: 80
+        HealthCheckProtocol: HTTP
+        HealthCheckTimeoutSeconds: 15
+        HealthyThresholdCount: 2
+        Port: 80
+        Protocol: HTTP
+        UnhealthyThresholdCount: 10
+        VpcId: !Ref VPC
+    
+Outputs:
+  VPC:
     Description:  VPC
     Value: !Ref VPC
     Export:
       Name: !Sub "${EnvironmentName}-VPC" 
+
+  PublicSubnet1:
+    Description: Public Subnet
+    Value: !Ref PublicSubnet
+    Export:
+      Name: !Sub "${EnvironmentName}-PublicSubnet-1"
         

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  labels:
+    app: pythonApp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis-pod
+      app: pythonApp
+  template:
+    metadata:
+      name: redis-pod
+      labels:
+        name: redis-pod
+        app: pythonApp
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        ports:
+        - containerPort: 6379
