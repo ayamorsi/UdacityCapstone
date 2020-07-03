@@ -9,7 +9,8 @@ spec:
       name: redis
   template:
     metadata:
-      name: redis
+      labels:
+        name: redis
     spec:
       containers:
       - name: redis
