@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                sh 'python3 tests/test.py'
+                sh 'python3 pythonApp/tests/test.py'
             }
         post {
            success{
