@@ -1,9 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: python-app-deployment
+  name: udacitypythonapp
+  namespace: default
 spec:
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels:
       tag: pythonapp
@@ -13,7 +14,7 @@ spec:
         tag: pythonapp
     spec:
       containers:
-      - name: python-app
-        image: ayamorsi/simple-python-app:latest
-        ports:
-        - containerPort: 8000
+        - name: udacitypythonapp
+          image: atefhares/simple_python_app:latest
+          ports:
+            - containerPort: 8000
