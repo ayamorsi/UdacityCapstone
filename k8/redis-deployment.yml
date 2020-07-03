@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: redis
 spec:
-  replicas: 1
   selector:
     matchLabels:
       name: redis
@@ -13,7 +12,7 @@ spec:
         name: redis
     spec:
       containers:
-      - name: redis
-        image: redis
-        ports:
-        - containerPort: 6379
+        - name: redis
+          image: redis
+          ports:
+            - containerPort: 6379
