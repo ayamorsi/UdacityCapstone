@@ -23,7 +23,7 @@ pipeline {
     stage('UploadDocker'){
         steps{
                withCredentials([usernamePassword(credentialsId: 'docker_id', passwordVariable: 'passwordVariable', usernameVariable: 'usernameVariable')]) {
-                  sh 'docker login -u=$DOCKER_REGISTRY_USER -p=$DOCKER_REGISTRY_PWD'
+                  sh 'docker login -u=$usernameVariable -p=$passwordVariable'
                   sh 'docker tag python-app ayamorsi/simple-python-app'
                   sh "docker push ayamorsi/simple-python-app:latest"
         }
