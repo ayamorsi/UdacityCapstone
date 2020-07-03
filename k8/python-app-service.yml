@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: app
+  name: python-app-service
 spec:
   type: NodePort
   ports:
@@ -10,4 +10,4 @@ spec:
       targetPort: 8000
       protocol: TCP
   selector:
-      tag: pythonapp
+    tag: pythonapp
