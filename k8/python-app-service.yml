@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: voting-service
+  name: app
   labels:
-    name: voting-service
-    app: demo-voting-app
+    name: app-service
+    app: pythonApp
 spec:
   type: NodePort
   ports:
@@ -13,5 +13,5 @@ spec:
       targetPort: 80
       protocol: TCP
   selector:
-    name: voting-app-pod
-    app: demo-voting-app
+    name: python-app-deployment
+    app: pythonApp
