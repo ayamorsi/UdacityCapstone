@@ -19,6 +19,6 @@ spec:
     spec:
       containers:
       - name: python-app
-        image: ayamorsi/simple-python-app
+        image: ayamorsi/simple-python-app:latest
         ports:
         - containerPort: 80
