@@ -115,10 +115,10 @@ Resources:
             sudo usermod -aG docker ubuntu && newgrp docker
             minikube start
             git clone https://github.com/ayamorsi/UdacityCapstone.git
-            kubectl apply -f project/k8/redis-deployment.yaml
-            kubectl apply -f project/k8/redis-service.yaml
-            kubectl apply -f project/k8/python-app-deployment.yaml
-            kubectl apply -f project/k8/python-app-service.yaml
+            kubectl apply -f UdacityCapstone/k8/redis-deployment.yaml
+            kubectl apply -f UdacityCapstone/k8/redis-service.yaml
+            kubectl apply -f UdacityCapstone/k8/python-app-deployment.yaml
+            kubectl apply -f UdacityCapstone/k8/python-app-service.yaml
         ImageId: ami-005bdb005fb00e791
         KeyName: test
         SecurityGroups:
