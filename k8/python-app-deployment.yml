@@ -2,23 +2,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: python-app-deployment
-  labels:
-    app: pythonApp
 spec:
   replicas: 3
   selector:
     matchLabels:
-      name: python-app-pod
-      app: pythonApp
+      tag: pythonapp
   template:
     metadata:
-      name: python-app-pod
       labels:
-        name: python-app-pod
-        app: pythonApp
+        tag: pythonapp
     spec:
       containers:
       - name: python-app
         image: ayamorsi/simple-python-app:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8000
