@@ -22,7 +22,7 @@ pipeline {
             }
     stage('UploadDocker'){
         steps{
-               withCredentials([usernamePassword(credentialsId: 'docker_id', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
+               withCredentials([usernamePassword(credentialsId: 'docker_id', passwordVariable: 'passwordVariable', usernameVariable: 'usernameVariable')]) {
                   sh 'docker login -u=$DOCKER_REGISTRY_USER -p=$DOCKER_REGISTRY_PWD'
                   sh 'docker tag python-app ayamorsi/simple-python-app'
                   sh "docker push ayamorsi/simple-python-app:latest"
@@ -32,7 +32,7 @@ pipeline {
 
     stage('Deploy') {
             steps {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWSCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                    sh './infrastructure/create.sh mystack infrastructure/network.yml infrastructure/params.json'
                 }
             }
