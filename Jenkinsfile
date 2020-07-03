@@ -17,7 +17,7 @@ pipeline {
     
     stage('Dockerizing') {
         steps{
-                sh 'sudo docker build --tag=python-app . '
+                sh 'docker build --tag=python-app . '
          }
             }
     stage('UploadDocker'){
