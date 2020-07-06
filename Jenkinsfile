@@ -30,13 +30,13 @@ pipeline {
     } 
         }
 
-    // stage('Deploy') {
-    //         steps {
-    //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWSCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-    //                sh './infrastructure/create.sh mystack infrastructure/network.yml infrastructure/params.json'
-    //             }
-    //         }
-    //     }
+     stage('Deploy') {
+            steps {
+                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWSCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                    sh './infrastructure/create.sh mystack infrastructure/network.yml infrastructure/params.json'
+                }
+           }
+        }
       
     }
 }
