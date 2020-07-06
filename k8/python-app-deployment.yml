@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
         - name: udacitypythonapp
-          image: atefhares/simple_python_app:latest
+          image: ayamorsi/simple-python-app:latest
           ports:
             - containerPort: 8000
